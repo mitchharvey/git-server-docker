@@ -1,0 +1,29 @@
+#!/bin/sh
+echo $SSH_ORIGINAL_COMMAND 1>&2
+cmd=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 1)
+cd /repos
+
+if [ "$cmd" = "git-receive-pack" ]; then
+	path=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 2)
+
+	# Check for directory:
+	if [ ! -d $path ]; then
+		echo "$path does not exist! creating..." 1>&2
+		mkdir -p $path
+	fi
+
+	# Check for git repo:
+	git -C $path --git-dir=. rev-parse 2>/dev/null
+	if [ "$?" -ne 0 ]; then
+		echo -n "$path is not a bare git repository! " 1>&2
+		if [ "$(ls -A $path)" ]; then
+			echo "destination is not empty! aborting initialization!" 1>&2
+			exit 1
+		else
+			echo "initializing..." 1>&2
+			git init --bare $path 1>/dev/null 2>&1
+		fi
+	fi
+fi
+
+/usr/bin/$SSH_ORIGINAL_COMMAND
