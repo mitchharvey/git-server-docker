@@ -1,9 +1,9 @@
-name: Docker CI
+name: Master Docker CI
 
 on:
   push:
     branches:
-      - "develop"
+      - "master"
 
 jobs:
   build:
@@ -28,5 +28,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_IMAGENAME }}:${{ github.ref_name }}
-          #tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.ref }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_IMAGENAME }}:latest
