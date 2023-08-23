@@ -1,0 +1,30 @@
+#!/bin/sh
+echo "INSERT HOOK CREATE"
+args=$@
+path=$1
+# Check for directory:
+if [ ! -d $path ]; then
+	echo "$path does not exist! creating..."
+	mkdir -p $path
+fi
+
+# Check for git repo:
+git -C $path --git-dir=. rev-parse 2>/dev/null
+if [ "$?" -ne 0 ]; then
+	echo -n "$path is not a bare git repository! "
+	if [ "$(ls -A $path)" ]; then
+		echo "destination is not empty! aborting initialization!"
+		exit 1
+	else
+		echo "initializing..."
+		git init --bare $path 1>/dev/null 2>&1
+	fi
+fi
+
+# Check for non-bare repo:
+#isnotbare=$(git -C $path rev-parse --is-inside-work-tree 2>/dev/null)
+#if [ "$isnotbare" = "true" ]; then
+#	echo "$path is not a bare repository!"
+#fi
+
+git receive-pack $args

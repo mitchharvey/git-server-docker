@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Generate ssh keys if not exist
+ssh-keygen -A
+
 # If there is some public key in keys folder
 # then it copies its contain in authorized_keys file
 if [ "$(ls -A /git-server/keys/)" ]; then
