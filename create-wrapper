@@ -4,26 +4,31 @@ cmd=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 1)
 cd /repos
 
 if [ "$cmd" = "git-receive-pack" ]; then
-	path=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 2)
+	# Parse repo name
+	repo=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 2 | xargs)
+	if [ "$?" -ne 0 ]; then
+		echo "error parsing repo name! aborting!" 1>&2
+		exit 1
+	fi
 
 	# Check for directory:
-	if [ ! -d $path ]; then
-		echo "$path does not exist! creating..." 1>&2
-		mkdir -p $path
+	if [ ! -d $repo ]; then
+		echo "$repo does not exist! creating..." 1>&2
+		mkdir -p $repo
 	fi
 
 	# Check for git repo:
-	git -C $path --git-dir=. rev-parse 2>/dev/null
+	git -C $repo --git-dir=. rev-parse 2>/dev/null
 	if [ "$?" -ne 0 ]; then
-		echo -n "$path is not a bare git repository! " 1>&2
-		if [ "$(ls -A $path)" ]; then
+		echo -n "$repo is not a bare git repository! " 1>&2
+		if [ "$(ls -A $repo)" ]; then
 			echo "destination is not empty! aborting initialization!" 1>&2
 			exit 1
 		else
 			echo "initializing..." 1>&2
-			git init --bare $path 1>/dev/null 2>&1
+			git init --bare $repo 1>/dev/null 2>&1
 		fi
 	fi
 fi
 
-/usr/bin/$SSH_ORIGINAL_COMMAND
+/usr/bin/git-shell -c "$SSH_ORIGINAL_COMMAND"
