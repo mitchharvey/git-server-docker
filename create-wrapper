@@ -1,9 +1,14 @@
 #!/bin/sh
-echo $SSH_ORIGINAL_COMMAND 1>&2
+source /etc/profile.d/env.sh
+
+if [ "$VERBOSE" = "true" ]; then
+	echo $SSH_ORIGINAL_COMMAND 1>&2
+fi
+
 cmd=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 1)
 cd /repos
 
-if [ "$cmd" = "git-receive-pack" ]; then
+if [ "$cmd" = "git-receive-pack" ] && [ ! "$DO_NOT_CREATE_IF_NOT_EXIST" = "true" ]; then
 	# Parse repo name
 	repo=$(echo $SSH_ORIGINAL_COMMAND | cut -d ' ' -f 2 | xargs)
 	if [ "$?" -ne 0 ]; then

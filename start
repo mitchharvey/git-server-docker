@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Set env vars
+echo "VERBOSE=$VERBOSE" >> /etc/profile.d/env.sh
+echo "DO_NOT_CREATE_IF_NOT_EXIST=$DO_NOT_CREATE_IF_NOT_EXIST" >> /etc/profile.d/env.sh
+cat /etc/profile.d/env.sh
+
 # Generate ssh keys if not exist
 ls /hostkeys/ssh_host_* 1>/dev/null 2>&1
 if [ "$?" -eq 0 ]; then
