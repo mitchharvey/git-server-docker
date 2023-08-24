@@ -1,12 +1,15 @@
 #!/bin/sh
 
 # Generate ssh keys if not exist
-if [ "$(ls /etc/ssh/ssh_host_* 1>/dev/null 2>&1)" ]; then
+ls /hostkeys/ssh_host_* 1>/dev/null 2>&1
+if [ "$?" -eq 0 ]; then
 	echo "found existing hostkey(s)"
+	cp -v /hostkeys/ssh_host_* /etc/ssh 
 else
-	echo "creating new hostkeys..."
+	echo "no hostkeys found. generating new hostkeys..."
 	yes n | ssh-keygen -q -N "" -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
 	yes n | ssh-keygen -q -N "" -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key
+	cp -v /etc/ssh/ssh_host_* /hostkeys
 fi
 
 # Add public keys to authorized keys
@@ -17,16 +20,20 @@ if [ "$(ls -A /keys/)" ]; then
 	chown -R git:git .ssh
 	chmod 700 .ssh
 	chmod -R 600 .ssh/*
+else
+	echo "WARNING: NO SSH KEYS FOUND!"
 fi
 
 # Checking permissions and fixing SGID bit in repos folder
-# More info: https://github.com/jkarlosb/git-server-docker/issues/1
 if [ "$(ls -A /repos/)" ]; then
 	echo "adding repos..."
 	cd /repos
+	chmod -R 755 .
 	chown -R git:git .
-	chmod -R ug+rwX .
-	find . -type d -exec chmod g+s '{}' +
+	#chmod -R ug+rwX .
+	#find . -type d -exec chmod g+s '{}' +
+else
+	echo "WARNING: NO REPOSITORIES FOUND!"
 fi
 
 echo "starting sshd..."
