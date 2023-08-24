@@ -9,7 +9,8 @@ cat /etc/profile.d/env.sh
 ls /hostkeys/ssh_host_* 1>/dev/null 2>&1
 if [ "$?" -eq 0 ]; then
 	echo "found existing hostkey(s)"
-	cp -v /hostkeys/ssh_host_* /etc/ssh 
+	cp -v /hostkeys/ssh_host_* /etc/ssh
+	chmod 700 /etc/ssh/*
 else
 	echo "no hostkeys found. generating new hostkeys..."
 	yes n | ssh-keygen -q -N "" -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
