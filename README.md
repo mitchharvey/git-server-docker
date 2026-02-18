@@ -9,7 +9,7 @@ touch me
 git add me
 git commit -m "init"
 git remote add origin SERVER:repo
-git push -u origin master
+git push -u origin HEAD
 # done you can now run
 git clone SERVER:repo
 ```
